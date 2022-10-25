@@ -1,48 +1,55 @@
 package com.spring.entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
-@Table
+@Table(name = "users")
 public class User {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-    private String userName;
-    private String firstName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    @Column(name = "name")
+    private String name;
+    @Column(name = "last_name")
     private String lastName;
 
-    public long getId() {
-        return id;
+    public User() {
     }
 
-    public void setId(long id) {
+    public User(String name, String lastName) {
+        super();
+        setName(name);
+        setLastName(lastName);
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+
+    @Override
+    public String toString() {
+        return String.format("User{id=%d, name='%s', lastName='%s'}", id, name, lastName);
+    }
 }

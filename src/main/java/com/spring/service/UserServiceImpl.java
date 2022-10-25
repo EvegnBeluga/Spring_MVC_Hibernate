@@ -1,63 +1,41 @@
 package com.spring.service;
 
+import com.spring.dao.UserDao;
 import com.spring.entity.User;
-import com.spring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService {
-
-    // Implementing Constructor based DI
-    private UserRepository repository;
-
-    public UserServiceImpl() {
-
-    }
+class UserServiceImpl implements UserService {
+    private UserDao userDao;
 
     @Autowired
-    public UserServiceImpl(UserRepository repository) {
-        super();
-        this.repository = repository;
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
-    public List getAllUsers() {
-        List list = new ArrayList();
-        repository.findAll().forEach(list::add);
-        return list;
+    public List<User> getUsersList() {
+        return userDao.getUsers();
     }
 
     @Override
-    public User getUserById(Long id) {
-        User user = repository.findById(id).get();
-        return user;
+    public void saveUser(User user) {
+        userDao.saveUser(user);
     }
 
     @Override
-    public boolean saveUser(User user) {
-        try {
-            repository.save(user);
-            return true;
-        }catch(Exception ex) {
-            return false;
-        }
+    public User findById(Long id) {
+        return userDao.findById(id);
     }
 
     @Override
-    public boolean deleteUserById(Long id) {
-        try {
-            repository.deleteById(id);
-            return true;
-        }catch(Exception ex) {
-            return false;
-        }
-
+    public void deleteUser(Long id) {
+        userDao.deleteUser(id);
     }
 
 }

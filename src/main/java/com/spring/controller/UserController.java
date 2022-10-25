@@ -4,108 +4,56 @@ import com.spring.entity.User;
 import com.spring.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.PostMapping;
 
-import java.io.IOException;
 import java.util.List;
 
 @Controller
-public class UserController<HttpServletResponse> {
-    // Constructor based Dependency Injection
+public class UserController {
+
+
     private UserService userService;
 
-    public UserController() {
-
-    }
-
     @Autowired
-    public UserController(UserService userService) {
+    public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
-
-    @RequestMapping(value = { "/", "/home" }, method = RequestMethod.GET)
-    public ModelAndView hello(HttpServletResponse response) throws IOException {
-        ModelAndView mv = new ModelAndView();
-        mv.setViewName("home");
-        return mv;
+    @GetMapping(value = "/")
+    public String printUsers(Model model) {
+        List<User> users = userService.getUsersList();
+        model.addAttribute("users", users);
+        return "index";
     }
 
-    // Get All Users
-    @RequestMapping(value = "/allUsers", method = RequestMethod.POST)
-    public ModelAndView displayAllUser() {
-        System.out.println("User Page Requested : All Users");
-        ModelAndView mv = new ModelAndView();
-        List userList = userService.getAllUsers();
-        mv.addObject("userList", userList);
-        mv.setViewName("allUsers");
-        return mv;
+    @GetMapping("/editUser/{id}")
+    public String editUser(@PathVariable("id") Long id, Model model) {
+        User user = userService.findById(id);
+        model.addAttribute("user", user);
+        return "editUser";
     }
 
-    @RequestMapping(value = "/addUser", method = RequestMethod.GET)
-    public ModelAndView displayNewUserForm() {
-        ModelAndView mv = new ModelAndView("addUser");
-        mv.addObject("headerMessage", "Add User Details");
-        mv.addObject("user", new User());
-        return mv;
+    @GetMapping("/addUser")
+    public String addUser(Model model) {
+        model.addAttribute("user", new User());
+        return "addUser";
     }
 
-    @RequestMapping(value = "/addUser", method = RequestMethod.POST)
-    public ModelAndView saveNewUser(@ModelAttribute User user, BindingResult result) {
-        ModelAndView mv = new ModelAndView("redirect:/home");
-
-        if (result.hasErrors()) {
-            return new ModelAndView("error");
-        }
-        boolean isAdded = userService.saveUser(user);
-        if (isAdded) {
-            mv.addObject("message", "New user successfully added");
-        } else {
-            return new ModelAndView("error");
-        }
-
-        return mv;
+    @PostMapping
+    public String addUser(@ModelAttribute User user) {
+        userService.saveUser(user);
+        return "redirect:/";
     }
 
-    @RequestMapping(value = "/editUser/{id}", method = RequestMethod.GET)
-    public ModelAndView displayEditUserForm(@PathVariable Long id) {
-        ModelAndView mv = new ModelAndView("/editUser");
-        User user = userService.getUserById(id);
-        mv.addObject("headerMessage", "Edit User Details");
-        mv.addObject("user", user);
-        return mv;
+    @GetMapping(value = "/deleteUser/{id}")
+    public String deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
+        return "redirect:/";
     }
-
-    @RequestMapping(value = "/editUser/{id}", method = RequestMethod.POST)
-    public ModelAndView saveEditedUser(@ModelAttribute User user, BindingResult result) {
-        ModelAndView mv = new ModelAndView("redirect:/home");
-
-        if (result.hasErrors()) {
-            System.out.println(result.toString());
-            return new ModelAndView("error");
-        }
-        boolean isSaved = userService.saveUser(user);
-        if (!isSaved) {
-
-            return new ModelAndView("error");
-        }
-
-        return mv;
-    }
-
-    @RequestMapping(value = "/deleteUser/{id}", method = RequestMethod.GET)
-    public ModelAndView deleteUserById(@PathVariable Long id) {
-        boolean isDeleted = userService.deleteUserById(id);
-        System.out.println("User deletion respone: " + isDeleted);
-        ModelAndView mv = new ModelAndView("redirect:/home");
-        return mv;
-
-    }
-
 }
+
 
